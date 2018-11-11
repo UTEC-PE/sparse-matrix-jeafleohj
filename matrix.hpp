@@ -9,7 +9,6 @@ template <typename T>
 class Matrix {
 private:
 	NodeHeader<T> matrix;
-
 public:
 	Matrix()
 		: matrix()
@@ -17,9 +16,7 @@ public:
 
 	Matrix(int sizeX, int sizeY)
 		: matrix(sizeX, sizeY)
-	{
-
-	}
+	{}
 
 	void set(int x, int y, T data);
 	T operator()(int x, int y);
@@ -36,25 +33,92 @@ template<typename T>
 void Matrix<T>::set(int r, int c, T data){
 	if( -1 < c && c < matrix.cols &&
 		-1 < r && r < matrix.rows){
-		NodeValue<T>* nnode = new NodeValue<T>(c,r,data);
-		if( (*matrix.hColumns)[c]->nextValue == nullptr ){
-			(*matrix.hColumns)[c]->nextValue = nnode;
-		}else{
-			NodeValue<T>* it = (*matrix.hColumns)[c]->nextValue;
-			if( y < it->y ){
-				(*matrix.hRows)[x]->nextValue = nnode;
-				nnode->down = it;
-
+		if( data ){
+			NodeValue<T>* nnode = new NodeValue<T>(c,r,data);
+			if( (*matrix.hColumns)[c]->nextValue == nullptr ){
+				(*matrix.hColumns)[c]->nextValue = nnode;
 			}else{
-				while( it && it->y < y){
-					if(it->down == nullptr){
-						it->down = nnode;
-					}else if( it->down && y < it->down->y ){
-						nnode= it->down;
-						it->down = nnode;
+				NodeValue<T>* it = (*matrix.hColumns)[c]->nextValue;
+				if( r < it->y ){
+					nnode->down = it;
+					(*matrix.hColumns)[c]->nextValue = nnode;
+				}else{
+					while( it && it->y <= r){
+						if(it->y == r){
+							it->data = data;
+							delete nnode;
+							nnode = nullptr;
+							break;
+						}else if(it->down == nullptr){
+							it->down = nnode;
+							break;
+						}else if(it->down->y > r){
+							NodeValue<T>* down = it->down;
+							it->down = nnode;
+							nnode->down = down;
+							break;
+						} 
+						it = it->down;
 					}
-					it = it->down;
-				}				
+				}
+			}
+			if( (*matrix.hRows)[r]->nextValue == nullptr ){
+				(*matrix.hRows)[r]->nextValue = nnode;
+			}else{
+				NodeValue<T>* itr = (*matrix.hRows)[r]->nextValue;
+				if( c < itr->x ){
+					nnode->next = itr;
+					(*matrix.hRows)[r]->nextValue = nnode;
+				}else{
+					while( itr && itr->x <= c){
+					  	if(itr->x == c){
+
+					  		itr->data = data;
+					  		delete nnode;
+					  		nnode = nullptr;
+					  		break;
+					  	}else if(itr->next == nullptr){
+							itr->next = nnode;
+					  		break;
+					  	}else if(itr->next->x > c){
+					 		NodeValue<T>* next = itr->next;
+					 		itr->next = nnode;
+					 		nnode->next = next;
+					 		break;
+					  	} 
+					 	itr = itr->next;
+					}
+				}
+			}
+		}else{
+			if( (*matrix.hColumns)[c]->nextValue ){
+				NodeValue<T>* it = (*matrix.hColumns)[c]->nextValue;
+				//no libero memoria.
+				if( it->y == r){
+					(*matrix.hColumns)[c]->nextValue = it->down;
+				}else{
+					//falta testear esto
+					while( it && it->down && it->y <= r ){
+						if( it->y == r){
+							//it->data = 0;
+							it = nullptr;
+						}
+						it = it->down;
+					}
+				}
+				//delete it;
+				//it = nullptr;
+				// NodeValue<T>* itr = (*matrix.hRows)[r]->nextValue;
+				// while( itr && itr->next && itr->x <= c){
+				// 	cout << itr->data <<" "<<itr->x<<" "<<itr->y<<"\t"<<c << "\n";
+				// 	if(itr->x == c){
+				// 		cout << "sdas" << "\n";
+				// 		break;
+				// 	}
+				// 	itr = itr->next;
+				// }
+				// delete itr;
+				// itr = nullptr;
 			}
 		}
 	}else{
@@ -73,7 +137,16 @@ T Matrix<T>::operator()(int x, int y){
 			it = it->down;
 		}
 	}
-	return 0;
+	// if( (*matrix.hRows)[y]->nextValue != nullptr ){
+	// 	NodeValue<T>* it = (*matrix.hRows)[y]->nextValue;
+	// 	while(it && it->x <= x){
+	// 		if(it->x == x){
+	// 			return it->data;
+	// 		}
+	// 		it = it->next;
+	// 	}
+	// }
+	return -1;
 }
 
 template<typename T>
