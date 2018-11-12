@@ -29,7 +29,6 @@ struct NodeLine{
 		for(int i = 0; i<index; ++i) {
 			tmp = tmp->nextNode;
 		}
-		//cout << "asd" << "\n";
 		return tmp;
 	}
 };
@@ -50,12 +49,12 @@ struct NodeHeader{
 		insertNodes(hRows, x);
 		insertNodes(hColumns, y);
 	}
-private:
 	void insertNodes(NodeLine<T>* & nodo, int count){
 		for(int i = count-1; i>=0; i--) {
 			insertNode(nodo, i);
 		}
 	}
+private:
 	void insertNode(NodeLine<T>* & nodo, int pos=0){
 		NodeLine<T>* tmp = new NodeLine<T>(pos);
 		if(nodo == nullptr){

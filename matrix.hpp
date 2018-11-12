@@ -17,7 +17,9 @@ public:
 	Matrix(int sizeX, int sizeY)
 		: matrix(sizeX, sizeY)
 	{}
-
+	int getRows(){
+		return matrix.rows;
+	}
 	void set(int x, int y, T data);
 	T operator()(int x, int y);
 	Matrix<T> operator*(Matrix<T> other);
@@ -93,15 +95,13 @@ void Matrix<T>::set(int r, int c, T data){
 		}else{
 			if( (*matrix.hColumns)[c]->nextValue ){
 				NodeValue<T>* it = (*matrix.hColumns)[c]->nextValue;
-				//no libero memoria.
 				if( it->y == r){
-					//(*matrix.hColumns)[c]->nextValue = it->down;
+					(*matrix.hColumns)[c]->nextValue = it->down;
 				}else{
-					//falta testear esto
-					while( it && it->down && it->y <= r ){
-						if( it->y == r){
-							//it->data = 0;
-							it = nullptr;
+					while( it->down ){
+						if( it->down->y == r){
+							it->down = it->down->down;
+							break;
 						}
 						it = it->down;
 					}
@@ -114,7 +114,6 @@ void Matrix<T>::set(int r, int c, T data){
 					it = nullptr;
 				}else{
 					while( it->next){
-						cout << it->x<<" "<<it->y<<" "<<it->data <<" "<<c<< "\n";
 						if( it->next->x == c){
 							NodeValue<T>* node = it->next;
 							it->next = node->next;
@@ -153,7 +152,7 @@ T Matrix<T>::operator()(int x, int y){
 			it = it->next;
 		}
 	}
-	return -1;
+	return 0;
 }
 
 template<typename T>
@@ -163,7 +162,7 @@ Matrix<T> Matrix<T>::operator*(Matrix<T> other){
 
 template<typename T>
 Matrix<T> Matrix<T>::operator*(T scalar){
-
+	
 }
 
 template<typename T>
@@ -178,11 +177,31 @@ Matrix<T> Matrix<T>::operator-(Matrix<T> other){
 
 template<typename T>
 Matrix<T> Matrix<T>::transposed(){
+	Matrix<T> tr(matrix.cols, matrix.rows);
+	for(int i=0; i<matrix.rows; i++){
+		NodeValue<T>* it = (*matrix.hRows)[i]->nextValue;
+		while(it){
+			tr.set(it->x,it->y, it->data);
+			it = it->next;
+		}
+	}
+	return tr;
 }
 
 template<typename T>
 Matrix<T> Matrix<T>::operator=(Matrix<T> other){
-	
+	matrix.rows =other.matrix.rows;
+	matrix.cols =other.matrix.cols;
+	matrix.insertNodes(matrix.hRows, matrix.rows);
+	matrix.insertNodes(matrix.hColumns, matrix.cols);
+	for(int i=0; i<matrix.rows; i++){
+		NodeValue<T>* it = (*other.matrix.hRows)[i]->nextValue;
+		while(it){
+			set(it->y,it->x, it->data);
+			it = it->next;
+		}
+	}
+	return *this;
 }
 
 template<typename T>
