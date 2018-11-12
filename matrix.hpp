@@ -20,6 +20,9 @@ public:
 	int getRows(){
 		return matrix.rows;
 	}
+	int getCols(){
+		return matrix.cols;
+	}
 	void set(int x, int y, T data);
 	T operator()(int x, int y);
 	Matrix<T> operator*(Matrix<T> other);
@@ -167,7 +170,22 @@ T Matrix<T>::operator()(int x, int y){
 
 template<typename T>
 Matrix<T> Matrix<T>::operator*(Matrix<T> other){
-	
+	if(  matrix.cols == other.matrix.rows ){
+
+		Matrix<T> tr(matrix.rows, other.matrix.cols);
+		for(int i = 0; i<matrix.rows; ++i) {
+			for(int k = 0; k<other.matrix.cols; ++k) {
+				T adder = 0;
+				for(int j = 0; j<matrix.cols; ++j) {
+					adder += (*this)(j,i) * other(k,j);
+				}
+				tr.set(i,k,adder);
+			}
+		}
+		return tr;
+	}else{
+		throw std::out_of_range ("Is not possible to mulplicate this matrices");
+	}	
 }
 
 template<typename T>
