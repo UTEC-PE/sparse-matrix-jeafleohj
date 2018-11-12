@@ -40,10 +40,12 @@ void Matrix<T>::set(int r, int c, T data){
 			if( (*matrix.hColumns)[c]->nextValue == nullptr ){
 				(*matrix.hColumns)[c]->nextValue = nnode;
 			}else{
+
 				NodeValue<T>* it = (*matrix.hColumns)[c]->nextValue;
 				if( r < it->y ){
 					nnode->down = it;
 					(*matrix.hColumns)[c]->nextValue = nnode;
+
 				}else{
 					while( it && it->y <= r){
 						if(it->y == r){
@@ -63,7 +65,10 @@ void Matrix<T>::set(int r, int c, T data){
 						it = it->down;
 					}
 				}
+
 			}
+			
+
 			if( (*matrix.hRows)[r]->nextValue == nullptr ){
 				(*matrix.hRows)[r]->nextValue = nnode;
 			}else{
@@ -92,11 +97,16 @@ void Matrix<T>::set(int r, int c, T data){
 					}
 				}
 			}
+
 		}else{
-			if( (*matrix.hColumns)[c]->nextValue ){
+
+			if( (*matrix.hColumns)[c]->nextValue){
+
 				NodeValue<T>* it = (*matrix.hColumns)[c]->nextValue;
 				if( it->y == r){
+
 					(*matrix.hColumns)[c]->nextValue = it->down;
+
 				}else{
 					while( it->down ){
 						if( it->down->y == r){
@@ -108,11 +118,11 @@ void Matrix<T>::set(int r, int c, T data){
 				}
 
 				it = (*matrix.hRows)[r]->nextValue;
-				if( it->x == c){
+				if( it && it->x == c){
 					(*matrix.hRows)[r]->nextValue = it->next;
 					delete it;
 					it = nullptr;
-				}else{
+				}else if(it){
 					while( it->next){
 						if( it->next->x == c){
 							NodeValue<T>* node = it->next;
@@ -157,22 +167,47 @@ T Matrix<T>::operator()(int x, int y){
 
 template<typename T>
 Matrix<T> Matrix<T>::operator*(Matrix<T> other){
-
-}
-
-template<typename T>
-Matrix<T> Matrix<T>::operator*(T scalar){
 	
 }
 
 template<typename T>
-Matrix<T> Matrix<T>::operator+(Matrix<T> other){
+Matrix<T> Matrix<T>::operator*(T scalar){
+	Matrix<T> tr(matrix.rows, matrix.cols);
+	for(int i=0; i<matrix.rows; i++){
+		NodeValue<T>* it = (*matrix.hRows)[i]->nextValue;
+		while(it){
+			tr.set(it->y,it->x, scalar*it->data);
+			it = it->next;
+		}
+	}
+	return tr;	
+}
 
+template<typename T>//Right scalar * matrix
+inline Matrix<T> operator*(T scalar,  Matrix<T> other){
+	return other*scalar;
+}
+
+template<typename T>
+Matrix<T> Matrix<T>::operator+(Matrix<T> other){
+	if(  matrix.cols == other.matrix.cols &&
+		 matrix.rows == other.matrix.rows ){
+		Matrix<T> tr = *this;
+		for(int i=0; i<matrix.rows; i++){
+			for(int j=0; j<matrix.cols; j++){
+				tr.set(i, j, tr(j,i)+ other(j,i));
+			}
+		}
+		return tr;
+	}else{
+		throw std::out_of_range ("Diferent dimensions");
+	}
 }
 
 template<typename T>
 Matrix<T> Matrix<T>::operator-(Matrix<T> other){
-
+	Matrix<T> tr = *this;
+	return tr + (-1)*other;
 }
 
 template<typename T>
