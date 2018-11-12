@@ -15,7 +15,7 @@ int main(){
 	a.set(1,6, 7);
 	a.set(2,6, 8);
 	a.set(3,0,0);
-	b= a;
+	b= 2*a-a*5;
 	b = b * a.transposed();
 	cout << "RES: " << "\n";
 	cout << b <<endl;
