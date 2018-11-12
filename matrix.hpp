@@ -2,8 +2,7 @@
 #define MATRIX_HPP
 
 #include "node.hpp"
-
-using namespace std;
+#include <iomanip>
 
 template <typename T>
 class Matrix {
@@ -31,6 +30,8 @@ public:
 	Matrix<T> operator-(Matrix<T> other);
 	Matrix<T> transposed();
 	Matrix<T> operator=(Matrix<T> other);
+	template<typename U>
+	friend std::ostream& operator<<(std::ostream& os, Matrix<U>& m); 
 	~Matrix();
 };
 
@@ -255,6 +256,17 @@ Matrix<T> Matrix<T>::operator=(Matrix<T> other){
 		}
 	}
 	return *this;
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, Matrix<T>& m){
+	for(int i=0; i<m.matrix.rows; i++){
+		for(int j = 0; j<m.matrix.cols; ++j) {
+			os<<std::setw(5)<< m(j,i);
+		}
+		os<<"\n";
+	}
+	return os;
 }
 
 template<typename T>
