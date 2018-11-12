@@ -95,7 +95,7 @@ void Matrix<T>::set(int r, int c, T data){
 				NodeValue<T>* it = (*matrix.hColumns)[c]->nextValue;
 				//no libero memoria.
 				if( it->y == r){
-					(*matrix.hColumns)[c]->nextValue = it->down;
+					//(*matrix.hColumns)[c]->nextValue = it->down;
 				}else{
 					//falta testear esto
 					while( it && it->down && it->y <= r ){
@@ -106,19 +106,26 @@ void Matrix<T>::set(int r, int c, T data){
 						it = it->down;
 					}
 				}
-				//delete it;
-				//it = nullptr;
-				// NodeValue<T>* itr = (*matrix.hRows)[r]->nextValue;
-				// while( itr && itr->next && itr->x <= c){
-				// 	cout << itr->data <<" "<<itr->x<<" "<<itr->y<<"\t"<<c << "\n";
-				// 	if(itr->x == c){
-				// 		cout << "sdas" << "\n";
-				// 		break;
-				// 	}
-				// 	itr = itr->next;
-				// }
-				// delete itr;
-				// itr = nullptr;
+
+				it = (*matrix.hRows)[r]->nextValue;
+				if( it->x == c){
+					(*matrix.hRows)[r]->nextValue = it->next;
+					delete it;
+					it = nullptr;
+				}else{
+					while( it->next){
+						cout << it->x<<" "<<it->y<<" "<<it->data <<" "<<c<< "\n";
+						if( it->next->x == c){
+							NodeValue<T>* node = it->next;
+							it->next = node->next;
+							delete node;
+							node = nullptr;
+							break;
+						}
+						it = it->next;
+					}
+				}
+
 			}
 		}
 	}else{
@@ -128,24 +135,24 @@ void Matrix<T>::set(int r, int c, T data){
 
 template<typename T>
 T Matrix<T>::operator()(int x, int y){
-	if( (*matrix.hColumns)[x]->nextValue != nullptr ){
-		NodeValue<T>* it = (*matrix.hColumns)[x]->nextValue;
-		while(it && it->y <= y){
-			if(it->y == y){
-				return it->data;
-			}
-			it = it->down;
-		}
-	}
-	// if( (*matrix.hRows)[y]->nextValue != nullptr ){
-	// 	NodeValue<T>* it = (*matrix.hRows)[y]->nextValue;
-	// 	while(it && it->x <= x){
-	// 		if(it->x == x){
+	// if( (*matrix.hColumns)[x]->nextValue != nullptr ){
+	// 	NodeValue<T>* it = (*matrix.hColumns)[x]->nextValue;
+	// 	while(it && it->y <= y){
+	// 		if(it->y == y){
 	// 			return it->data;
 	// 		}
-	// 		it = it->next;
+	// 		it = it->down;
 	// 	}
 	// }
+	if( (*matrix.hRows)[y]->nextValue != nullptr ){
+		NodeValue<T>* it = (*matrix.hRows)[y]->nextValue;
+		while(it && it->x <= x){
+			if(it->x == x){
+				return it->data;
+			}
+			it = it->next;
+		}
+	}
 	return -1;
 }
 
